@@ -14,7 +14,7 @@ class PredictionService:
 
     def predict_all(self, date):
         predictions = self.modelService.predict_date(date)
-        self.userService.savePrediction(predictions)
+        self.userService.savePredictions(predictions)
         return predictions
 
 

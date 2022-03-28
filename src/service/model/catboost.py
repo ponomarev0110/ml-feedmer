@@ -229,9 +229,10 @@ class CatboostModelService(IModelService):
                 except Exception as exc:
                     logging.info(f"Couldn't find a model for {id}")
                     logging.debug(exc)
-                    logging.debug(traceback.format_exc())
                     result.append({
                         'userid' : id, 
                         'date' : date, 
                         'prediction' : None
                     })
+
+            return result

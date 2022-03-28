@@ -55,8 +55,10 @@ class UserRepository:
     def savePrediction(self, values):
         self.engine.execute(
             text('''
-            INSERT INTO public.predictions(userid, strdate, prediction)
+            INSERT INTO public.predictions(userid, strdate, orderProbability)
             VALUES(:userid, :date, :prediction)
+            ON CONFLICT (userid, strdate) 
+            DO UPDATE SET orderProbability = EXCLUDED.orderProbability;
             '''),
             values
         )
