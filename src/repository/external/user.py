@@ -47,7 +47,7 @@ class UserRepository:
     def savePrediction(self, values):
         self.engine.execute(
             text('''
-            INSERT INTO predictions(userid, strdate, prediction)
+            INSERT INTO public.predictions(userid, strdate, prediction)
             VALUES(:userid, :date, :prediction)
             '''),
             values

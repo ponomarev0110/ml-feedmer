@@ -27,7 +27,7 @@ def scheduled_job():
     logging.info("Training Model")
     catboostService.train()
     predictionService = serviceFactory.getPredictionService()
-    logging.info(predictionService.predict_user_date(390, datetime.fromisoformat("2021-10-01")))
+    predictionService.predict_all()
 
 
 sched.start()
