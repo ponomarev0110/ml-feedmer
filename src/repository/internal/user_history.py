@@ -33,8 +33,8 @@ class UserHistoryRepository:
 
     def save_data(self, data):
         query = text("""
-        INSERT INTO public.user_history(userid, strdate, hasOrdered, price) 
-        VALUES(:userid, :strdate, :hasOrdered, :price) 
+        INSERT INTO public.user_history(userid, strdate, hasOrdered, price, messages) 
+        VALUES(:userid, :strdate, :hasOrdered, :price, :messages) 
         ON CONFLICT (userid, strdate) 
         DO UPDATE set hasOrdered = EXCLUDED.hasOrdered;""")
         self.engine.execute(query, data)

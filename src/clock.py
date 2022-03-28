@@ -20,7 +20,7 @@ def scheduled_job():
     userService.updateStatistics()
     weatherService = serviceFactory.getWeatherService()
     logging.info("Updating Weather")
-    weatherService.update_weather(limit = 5)
+    weatherService.update_weather()
     logging.info("Updating Building Types")
     userService.saveBuildingTypes()
     catboostService = serviceFactory.getCatboostModelService()

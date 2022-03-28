@@ -58,7 +58,7 @@ class ModelDataRepository:
             COALESCE(user_statistics.average_order_count_7, 0) as average_order_count_7,
             COALESCE(user_statistics.order_frequency, 0) as order_frequency,
             user_statistics.days_since_last_order as days_since_last_order,
-            COALESCE((received.messages > 0), FALSE) as offer_sent,
+            COALESCE((user_history.messages > 0), FALSE) as offer_sent,
             weather.latitude, 
             weather.longitude, 
             weather.apparenttemperaturehigh, 
@@ -79,19 +79,10 @@ class ModelDataRepository:
         ON user_history.userid = users.userid
         LEFT JOIN public.weather as weather
         ON weather.formaladdr = users.formaladdr AND weather.strdate = user_history.strdate
-        LEFT JOIN public.orders 
-        ON user_history.userid = orders.userid AND user_history.strdate = orders.strdate
         LEFT JOIN public.building_types 
         ON building_types.formaladdr = users.formaladdr
         LEFT JOIN public.user_statistics 
         ON user_history.userid = user_statistics.userid AND user_history.strdate = user_statistics.strdate
-        LEFT JOIN 
-        (
-            SELECT userid, strdate, count(text) as messages from sentmessages
-            WHERE text LIKE 'Добрый день%%'
-            GROUP BY userid, strdate
-        )as received 
-        ON user_history.userid = received.userid AND user_history.strdate = received.strdate
         ORDER BY (user_history.userid, user_history.strdate);
         '''
         )
@@ -115,7 +106,7 @@ class ModelDataRepository:
             COALESCE(user_statistics.average_order_count_7, 0) as average_order_count_7,
             COALESCE(user_statistics.order_frequency, 0) as order_frequency,
             user_statistics.days_since_last_order as days_since_last_order,
-            COALESCE((received.messages > 0), FALSE) as offer_sent,
+            COALESCE((user_history.messages > 0), FALSE) as offer_sent,
             weather.latitude, 
             weather.longitude, 
             weather.apparenttemperaturehigh, 
@@ -136,19 +127,10 @@ class ModelDataRepository:
         ON user_history.userid = users.userid
         LEFT JOIN public.weather as weather
         ON weather.formaladdr = users.formaladdr AND weather.strdate = user_history.strdate
-        LEFT JOIN public.orders 
-        ON user_history.userid = orders.userid AND user_history.strdate = orders.strdate
         LEFT JOIN public.building_types 
         ON building_types.formaladdr = users.formaladdr
         LEFT JOIN public.user_statistics 
         ON user_history.userid = user_statistics.userid AND user_history.strdate = user_statistics.strdate
-        LEFT JOIN 
-        (
-            SELECT userid, strdate, count(text) as messages from sentmessages
-            WHERE text LIKE 'Добрый день%%'
-            GROUP BY userid, strdate
-        )as received 
-        ON user_history.userid = received.userid AND user_history.strdate = received.strdate
         WHERE user_history.strdate BETWEEN :start AND :end
         ORDER BY (user_history.userid, user_history.strdate);
         '''),
@@ -175,7 +157,7 @@ class ModelDataRepository:
             COALESCE(user_statistics.average_order_count_7, 0) as average_order_count_7,
             COALESCE(user_statistics.order_frequency, 0) as order_frequency,
             user_statistics.days_since_last_order as days_since_last_order,
-            COALESCE((received.messages > 0), FALSE) as offer_sent,
+            COALESCE((user_history.messages > 0), FALSE) as offer_sent,
             weather.latitude, 
             weather.longitude, 
             weather.apparenttemperaturehigh, 
@@ -196,19 +178,10 @@ class ModelDataRepository:
         ON user_history.userid = users.userid
         LEFT JOIN public.weather as weather
         ON weather.formaladdr = users.formaladdr AND weather.strdate = user_history.strdate
-        LEFT JOIN public.orders 
-        ON user_history.userid = orders.userid AND user_history.strdate = orders.strdate
         LEFT JOIN public.building_types 
         ON building_types.formaladdr = users.formaladdr
         LEFT JOIN public.user_statistics 
         ON user_history.userid = user_statistics.userid AND user_history.strdate = user_statistics.strdate
-        LEFT JOIN 
-        (
-            SELECT userid, strdate, count(text) as messages from sentmessages
-            WHERE text LIKE 'Добрый день%%'
-            GROUP BY userid, strdate
-        )as received 
-        ON user_history.userid = received.userid AND user_history.strdate = received.strdate
         WHERE user_history.userid = :userid
         ORDER BY (user_history.userid, user_history.strdate);
         '''),
@@ -234,7 +207,7 @@ class ModelDataRepository:
             COALESCE(user_statistics.average_order_count_7, 0) as average_order_count_7,
             COALESCE(user_statistics.order_frequency, 0) as order_frequency,
             user_statistics.days_since_last_order as days_since_last_order,
-            COALESCE((received.messages > 0), FALSE) as offer_sent,
+            COALESCE((user_history.messages > 0), FALSE) as offer_sent,
             weather.latitude, 
             weather.longitude, 
             weather.apparenttemperaturehigh, 
@@ -255,19 +228,10 @@ class ModelDataRepository:
         ON user_history.userid = users.userid
         LEFT JOIN public.weather as weather
         ON weather.formaladdr = users.formaladdr AND weather.strdate = user_history.strdate
-        LEFT JOIN public.orders 
-        ON user_history.userid = orders.userid AND user_history.strdate = orders.strdate
         LEFT JOIN public.building_types 
         ON building_types.formaladdr = users.formaladdr
         LEFT JOIN public.user_statistics 
         ON user_history.userid = user_statistics.userid AND user_history.strdate = user_statistics.strdate
-        LEFT JOIN 
-        (
-            SELECT userid, strdate, count(text) as messages from sentmessages
-            WHERE text LIKE 'Добрый день%%'
-            GROUP BY userid, strdate
-        )as received 
-        ON user_history.userid = received.userid AND user_history.strdate = received.strdate
         WHERE user_history.userid = :userid
         AND user_history.strdate BETWEEN :start AND :end
         ORDER BY (user_history.userid, user_history.strdate);
@@ -296,7 +260,7 @@ class ModelDataRepository:
             COALESCE(user_statistics.average_order_count_7, 0) as average_order_count_7,
             COALESCE(user_statistics.order_frequency, 0) as order_frequency,
             user_statistics.days_since_last_order as days_since_last_order,
-            COALESCE((received.messages > 0), FALSE) as offer_sent,
+            COALESCE((user_history.messages > 0), FALSE) as offer_sent,
             weather.latitude, 
             weather.longitude, 
             weather.apparenttemperaturehigh, 
@@ -317,19 +281,10 @@ class ModelDataRepository:
         ON user_history.userid = users.userid
         LEFT JOIN public.weather as weather
         ON weather.formaladdr = users.formaladdr AND weather.strdate = user_history.strdate
-        LEFT JOIN public.orders 
-        ON user_history.userid = orders.userid AND user_history.strdate = orders.strdate
         LEFT JOIN public.building_types 
         ON building_types.formaladdr = users.formaladdr
         LEFT JOIN public.user_statistics 
         ON user_history.userid = user_statistics.userid AND user_history.strdate = user_statistics.strdate
-        LEFT JOIN 
-        (
-            SELECT userid, strdate, count(text) as messages from sentmessages
-            WHERE text LIKE 'Добрый день%%'
-            GROUP BY userid, strdate
-        )as received 
-        ON user_history.userid = received.userid AND user_history.strdate = received.strdate
         WHERE user_history.userid = :userid
         AND user_history.strdate = :date
         ORDER BY (user_history.userid, user_history.strdate);
@@ -358,7 +313,7 @@ class ModelDataRepository:
             COALESCE(user_statistics.average_order_count_7, 0) as average_order_count_7,
             COALESCE(user_statistics.order_frequency, 0) as order_frequency,
             user_statistics.days_since_last_order as days_since_last_order,
-            COALESCE((received.messages > 0), FALSE) as offer_sent,
+            COALESCE((user_history.messages > 0), FALSE) as offer_sent,
             weather.latitude, 
             weather.longitude, 
             weather.apparenttemperaturehigh, 
@@ -379,19 +334,10 @@ class ModelDataRepository:
         ON user_history.userid = users.userid
         LEFT JOIN public.weather as weather
         ON weather.formaladdr = users.formaladdr AND weather.strdate = user_history.strdate
-        LEFT JOIN public.orders 
-        ON user_history.userid = orders.userid AND user_history.strdate = orders.strdate
         LEFT JOIN public.building_types 
         ON building_types.formaladdr = users.formaladdr
         LEFT JOIN public.user_statistics 
         ON user_history.userid = user_statistics.userid AND user_history.strdate = user_statistics.strdate
-        LEFT JOIN 
-        (
-            SELECT userid, strdate, count(text) as messages from sentmessages
-            WHERE text LIKE 'Добрый день%%'
-            GROUP BY userid, strdate
-        )as received 
-        ON user_history.userid = received.userid AND user_history.strdate = received.strdate
         WHERE user_history.strdate = :date
         ORDER BY (user_history.userid, user_history.strdate);
         '''),

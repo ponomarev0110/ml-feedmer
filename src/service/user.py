@@ -33,10 +33,13 @@ class UserService:
         while date_s <= enddate:  
             hasOrdered = not orders_true.loc[(orders_true['userid'] == userid) & (orders_true['strdate'] == date_s)].empty
             price = None
+            messages = None
             if hasOrdered:
                 price = orders_true.loc[(orders_true['userid'] == userid) & (orders_true['strdate'] == date_s), ['price']]
                 price = price.values[0][0]
-            values.append({'userid' : userid, 'strdate' : date_s, 'hasOrdered': hasOrdered, 'price' : price})
+                messages = orders_true.loc[(orders_true['userid'] == userid) & (orders_true['strdate'] == date_s), ['messages']]
+                messages = int(messages.values[0][0])
+            values.append({'userid' : userid, 'strdate' : date_s, 'hasOrdered': hasOrdered, 'price' : price, 'messages' : messages})
             date_s += dt.timedelta(days=1)
         self.userHistoryRepository.save_data(values)
 
@@ -59,7 +62,9 @@ class UserService:
         self.internalUserRepository.saveAll(users)
 
     def updateStatistics(self):
+        logging.debug("Recalculating statistics")
         self.userStatisticsRepository.recalculateStats()
+        logging.debug("Calculating days since last order")
         self.userStatisticsRepository.days_since_last_order()
 
     def saveBuildingTypes(self):

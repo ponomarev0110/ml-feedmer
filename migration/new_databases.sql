@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS public.user_history
     strdate TIMESTAMP NOT NULL,
     hasordered boolean,
     price numeric,
+    messages integer,
     CONSTRAINT user_history_pkey PRIMARY KEY (userid, strdate)
 );
 

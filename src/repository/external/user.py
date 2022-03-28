@@ -28,7 +28,7 @@ class UserRepository:
 
     def getOrderData(self):
         data = self.engine.execute('''
-        SELECT orders.userid, orders.strdate, prc.prcsum
+        SELECT orders.userid, orders.strdate, prc.prcsum, COALESCE(received.messages, 0) as messages
         FROM public.orders
         LEFT JOIN
         (
@@ -39,8 +39,16 @@ class UserRepository:
             GROUP BY (answ.userid, answ.strdate)
         ) as prc 
         ON prc.userid = orders.userid AND prc.strdate = orders.strdate
+        LEFT JOIN 
+        (
+            SELECT userid, strdate, count(text) as messages from sentmessages
+            WHERE text LIKE 'Добрый день%%'
+            GROUP BY userid, strdate
+        ) as received 
+        ON orders.userid = received.userid AND orders.strdate = received.strdate;
         ''').fetchall()
-        orders = pd.DataFrame(data = data, columns=['userid', 'strdate', 'price'])
+        orders = pd.DataFrame(data = data, columns=['userid', 'strdate', 'price', 'messages'])
+        orders['messages'] = orders['messages'].astype(int)
         orders['strdate'] = pd.to_datetime(orders['strdate'], infer_datetime_format=True, format = "%d.%m.%Y", errors='coerce')
         return orders
 
