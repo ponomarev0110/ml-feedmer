@@ -35,7 +35,7 @@ class ServiceFactory:
             try:
                 self.predictionService = PredictionService(
                     self.getCatboostModelService(),
-                    self.getUserService
+                    self.getUserService()
                 )
             except Exception as exc:
                 logging.warning("Failed to initialize CatboostModelService")
