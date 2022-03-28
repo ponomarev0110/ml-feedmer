@@ -1,0 +1,15 @@
+catboost==1.0.4
+GDAL==3.4.2
+geopandas=0.10.2
+numpy==1.22.3
+osmnx==1.1.2
+pandas==1.4.1
+psycopg2==3.0.10
+requests==2.27.1
+scikit-learn==1.0.2
+scipy==1.8.0
+Shapely==1.8.0
+snuggs==1.4.7
+SQLAlchemy==1.4.32
+urllib3==1.26.9
+APScheduler==3.9.1
