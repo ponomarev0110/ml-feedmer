@@ -94,3 +94,6 @@ class UserService:
                 'prediction' : prediction
             }
         ])
+    
+    def savePredictions(self, predictions):
+        self.externalUserRepository.savePrediction(predictions)
