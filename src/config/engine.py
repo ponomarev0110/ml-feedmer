@@ -3,7 +3,7 @@ import os
 from sqlalchemy import create_engine, event
 
 class InternalDatabaseConfiguration:
-    DB_URL = os.environ.get('HEROKU_POSTGRESQL_BLUE_URL')
+    DB_URL = os.environ.get('HEROKU_POSTGRESQL_BLUE_URL', 'postgresql://test:FeedMer_Database_Test_For_Analytics@91.146.46.102:8628/FeedMerML')
     BATCH_SIZE = 1000
     
     engine = None
@@ -20,7 +20,7 @@ class InternalDatabaseConfiguration:
         return cls.engine
 
 class ExternalDatabaseConfiguration:
-    DB_URL = os.environ.get('EXTERNAL_DB_URL')
+    DB_URL = os.environ.get('EXTERNAL_DB_URL', 'postgresql://test:FeedMer_Database_Test_For_Analytics@91.146.46.102:8628/postgres')
     BATCH_SIZE = 1000
     
     engine = None

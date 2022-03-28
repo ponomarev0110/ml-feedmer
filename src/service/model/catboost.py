@@ -220,10 +220,10 @@ class CatboostModelService(IModelService):
                     x = user.drop(['userid','strdate','hasOrdered'], axis=1)
                     y = user['hasOrdered']
                     pred = model.predict(x)
-                    logging.debug(pred, y)
+                    logging.debug(f"Prediction fo user {id} : {pred}")
                     result.append({
                         'userid' : id, 
-                        'date' : date.strftime("%d.%m.%Y"), 
+                        'date' : date, 
                         'prediction' : pred
                     })
                 except Exception as exc:
@@ -232,6 +232,6 @@ class CatboostModelService(IModelService):
                     logging.debug(traceback.format_exc())
                     result.append({
                         'userid' : id, 
-                        'date' : date.strftime("%d.%m.%Y"), 
+                        'date' : date, 
                         'prediction' : None
                     })

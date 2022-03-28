@@ -13,7 +13,7 @@ class PredictionService:
         return prediction
 
     def predict_all(self, date):
-        predictions = self.modelService.predict_user_date(date)
+        predictions = self.modelService.predict_date(date)
         self.userService.savePrediction(predictions)
         return predictions
 
