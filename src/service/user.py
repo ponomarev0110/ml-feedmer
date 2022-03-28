@@ -103,5 +103,6 @@ class UserService:
     def savePredictions(self, predictions):
         if predictions:
             for i in predictions:
-                predictions[i]['date'] = predictions[i]['date'].strftime("%d.%m.%Y")
+                i['userid'] = int(i['userid'])
+                i['date'] = i['date'].strftime("%d.%m.%Y")
             self.externalUserRepository.savePrediction(predictions)
