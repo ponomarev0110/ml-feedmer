@@ -70,9 +70,10 @@ class CatboostModelService(IModelService):
     def prepareData(self, orders):
         orders['strdate'] = pd.to_datetime(orders['strdate'], infer_datetime_format=True, format = "%Y-%m-%d", errors='coerce')
         orders.sort_values(['strdate', 'userid'])
+        logging.debug(orders)
         
         orders['dayofweek'] = orders['strdate'].apply(dt.weekday)
-        logging.debug(orders['strdate'].apply(dt.weekday))
+        logging.debug(orders['dayofweek'])
         orders = orders.dropna()
         logging.debug(orders.dtypes)
         orders = orders[orders['dayofweek'] < 5]

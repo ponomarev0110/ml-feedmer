@@ -15,7 +15,7 @@ class TimeMachine:
     self.lang = lang
   
   def execute(self):
-    path = TimeMachine.url.format(self.API_Key, self.lat, self.lon, self.time)
+    path = TimeMachine.url.format(self.API_Key, self.lat, self.lon, self.time.isoformat(sep='T'))
     return requests.get(path, params = {"units" : self.units, "lang" : self.lang}).json()
 
 class DarkSky:

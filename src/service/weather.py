@@ -24,16 +24,17 @@ class WeatherService:
     def callDarkSky(self, lat, lon, date_s):
         return self.darkSky.BuildTimeMachine(lat, lon, date_s).execute()
 
-    def get_weather(self, formaladdr, strdate):
+    def get_weather(self, formaladdr, strdate, lat, lon):
         try: 
-            lat, lon = Constants.DEFAULT_LAT, Constants.DEFAULT_LON
-            try:
-                #TODO move to a variable
-                url = 'http://192.168.1.14:8081/search.php?q=' + urllib.parse.quote(formaladdr) +'&format=json'
-                response = requests.get(url).json()
-                lat, lon = response[0]["lat"], response[0]["lon"]
-            except Exception as exc:
-                logging.info("Failed to access Nominatim, setting default coordinates")
+            if (lat is None) or (lon is None):
+                lat, lon = Constants.DEFAULT_LAT, Constants.DEFAULT_LON
+                try:
+                    #TODO move to a variable
+                    url = 'http://192.168.1.14:8081/search.php?q=' + urllib.parse.quote(formaladdr) +'&format=json'
+                    response = requests.get(url).json()
+                    lat, lon = response[0]["lat"], response[0]["lon"]
+                except Exception as exc:
+                    logging.info("Failed to access Nominatim, setting default coordinates")
             logging.debug(f'requesting: {lat} {lon}')
             date_s = strdate
             data = self.callDarkSky(lat, lon, date_s)
@@ -65,8 +66,8 @@ class WeatherService:
         data = self.weatherRepository.get_new_addresses()
         logging.info(f'Inserting {len(data)} objects')
         i = 0
-        for formaladdr, strdate in data:
-            self.get_weather(formaladdr, strdate)
+        for formaladdr, strdate, latitude, longitude in data:
+            self.get_weather(formaladdr, strdate, latitude, longitude)
             if limit is not None:
                 if i > limit:
                     break

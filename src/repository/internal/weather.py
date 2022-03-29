@@ -86,10 +86,16 @@ class WeatherRepository:
 
     def get_new_addresses(self):
         data = self.engine.execute('''
-        SELECT DISTINCT users.formaladdr, user_history.strdate
+        SELECT DISTINCT users.formaladdr, user_history.strdate, coords.latitude, coords.longitude
         FROM public.user_history
         INNER JOIN public.users ON user_history.userid = users.userid
         LEFT JOIN public.weather ON weather.formaladdr = users.formaladdr AND weather.strdate = user_history.strdate
+        LEFT JOIN 
+        (
+            SELECT DISTINCT weather.formaladdr as formaladdr, weather.latitude as latitude, weather.longitude as longitude
+            FROM weather
+            WHERE weather.formaladdr IS NOT NULL  AND weather.latitude IS NOT NULL and weather.longitude IS NOT NULL
+        ) coords ON users.formaladdr = coords.formaladdr
         WHERE weather.formaladdr IS NULL
         ''').fetchall()
         return data
