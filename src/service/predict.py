@@ -9,7 +9,7 @@ class PredictionService:
 
     def predict(self, userid, date):
         prediction = self.modelService.predict_user_date(userid, date)
-        self.userService.savePrediction(userid, date, prediction)
+        #self.userService.savePrediction(userid, date, prediction)
         return prediction
 
     def predict_all(self, date):

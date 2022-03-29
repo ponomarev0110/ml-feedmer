@@ -2,5 +2,5 @@
 .vscode/settings.json
 src/cache
 src/catboost_info
-src/resources/catboost/
+src/resources/model/catboost/
 __pycache__

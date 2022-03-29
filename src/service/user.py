@@ -89,14 +89,15 @@ class UserService:
                 logging.warning(exc)
                 logging.warning(traceback.format_exc())
                 break
-        self.internalUserRepository.saveBuildingTypes(types)
+        if types:
+            self.internalUserRepository.saveBuildingTypes(types)
 
     def savePrediction(self, userid, date, prediction):
         self.externalUserRepository.savePrediction([
             {
                 'userid' : userid, 
                 'date' : date.strftime("%d.%m.%Y"), 
-                'prediction' : prediction
+                'prediction' : float(prediction[1])
             }
         ])
     
@@ -105,4 +106,6 @@ class UserService:
             for i in predictions:
                 i['userid'] = int(i['userid'])
                 i['date'] = i['date'].strftime("%d.%m.%Y")
+                if i['prediction'] is not None:
+                    i['prediction'] = float(i['prediction'][1])
             self.externalUserRepository.savePrediction(predictions)

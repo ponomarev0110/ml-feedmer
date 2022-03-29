@@ -26,7 +26,7 @@ from utils.load_model import load_model
 from config.constants import Constants
 
 class CatboostModelService(IModelService):
-    NAME = "Catboost"
+    NAME = "catboost"
     LOOK_BACK = 90
     cat_features = [
         'payway',
@@ -168,10 +168,13 @@ class CatboostModelService(IModelService):
 
 
     def train(self):
-        data = self.dataRepository.getData()
+        data = self.dataRepository.getDataBefore(dt.now())
         data = self.prepareData(data)
         train = self.clear_unactive(data, self.LOOK_BACK)
         train = self.clear_with_one_cat(train).dropna().reset_index(drop=True)
+        path = os.path.join(Constants.MODEL_PATH, self.NAME)
+        if not os.path.exists(path):
+            os.makedirs(path)
         for id in train['userid'].unique():
             if not train[train['userid']==id].empty:
                 user = train[train['userid']==id]
@@ -187,12 +190,13 @@ class CatboostModelService(IModelService):
                                     custom_metric=['Logloss',
                                                     'AUC:hints=skip_train~false'])
                 try:
-                    model.fit(train_data, verbose=False)
+                    model.fit(train_data, verbose=False)                   
                     path = os.path.join(Constants.MODEL_PATH, self.NAME, str(id))
                     model.save_model(path)
                 except Exception as exc:
                     logging.info(f"Пропущен клиент № {id}")
                     logging.debug(exc)
+                    logging.debug(traceback.format_exc())
 
     def predict_user_date(self, userid, date):
         try:
@@ -201,7 +205,7 @@ class CatboostModelService(IModelService):
             orders = self.prepareData(data)
             x = orders.drop(['userid','strdate','hasOrdered'], axis=1)
             y = orders['hasOrdered']
-            pred = model.predict(x)
+            pred = model.predict_proba(x)[0]
             logging.debug(pred, y)
             return pred
         except Exception as exc:
@@ -219,7 +223,7 @@ class CatboostModelService(IModelService):
                     user = orders[orders['userid']==id]
                     x = user.drop(['userid','strdate','hasOrdered'], axis=1)
                     y = user['hasOrdered']
-                    pred = model.predict(x)
+                    pred = model.predict_proba(x)[0]
                     logging.debug(f"Prediction fo user {id} : {pred}")
                     result.append({
                         'userid' : id, 

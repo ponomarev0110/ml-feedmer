@@ -23,7 +23,6 @@ if __name__ == "__main__":
     logging.info("Training Model")
     catboostService.train()
     predictionService = serviceFactory.getPredictionService()
-    logging.info(predictionService.predict(390, datetime.fromisoformat("2021-10-01")))
-    predictionService.predict_all(datetime.fromisoformat("2021-10-01"))
+    predictionService.predict_all(datetime.now())
 
     
