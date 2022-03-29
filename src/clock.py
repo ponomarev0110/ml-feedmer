@@ -2,12 +2,13 @@ import logging
 import datetime
 
 from apscheduler.schedulers.blocking import BlockingScheduler
+from pytz import timezone
 
 from factory.service_factory import ServiceFactory
 
 sched = BlockingScheduler()
 
-@sched.scheduled_job('cron', day_of_week='mon-fri', hour=4)
+@sched.scheduled_job('cron', day_of_week='mon-fri', hour=4, timezone=timezone("Europe/Samara"))
 def scheduled_job():
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', encoding='utf-8', level=logging.DEBUG)
     serviceFactory = ServiceFactory.getInstance()
@@ -27,7 +28,7 @@ def scheduled_job():
     logging.info("Training Model")
     catboostService.train()
     predictionService = serviceFactory.getPredictionService()
-    predictionService.predict_all()
+    predictionService.predict_all(datetime.datetime.now())
 
 
 sched.start()
