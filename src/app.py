@@ -1,10 +1,12 @@
 from datetime import datetime
 import logging
+import time
 
 from factory.service_factory import ServiceFactory
 from service.user import UserService
 
 if __name__ == "__main__":
+    start_time = time.time()
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', encoding='utf-8', level=logging.DEBUG)
     serviceFactory = ServiceFactory.getInstance()
     userService = serviceFactory.getUserService()
@@ -24,5 +26,5 @@ if __name__ == "__main__":
     catboostService.train()
     predictionService = serviceFactory.getPredictionService()
     predictionService.predict_all(datetime.now())
-
+    logging.info(f"Finished work in {time.time() - start_time} seconds")
     

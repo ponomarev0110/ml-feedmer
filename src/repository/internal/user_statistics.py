@@ -1,8 +1,4 @@
-import requests
-import urllib.parse
-import asyncio
-import traceback
-import json
+from concurrent.futures import ThreadPoolExecutor
 
 from sqlalchemy.engine import Engine
 from sqlalchemy.sql import text
@@ -12,6 +8,8 @@ from datetime import datetime as dt
 
 import pandas as pd
 import osmnx as ox
+
+from config.executor import ThreadPoolConfig
 
 class UserStatisticsRepository:
     def __init__(self, engine : Engine) -> None:
@@ -75,6 +73,20 @@ class UserStatisticsRepository:
         order_frequency = EXCLUDED.order_frequency
     ''')
 
+    def calculate_days_sinse_last_order_for(self, i, data):
+        persona = data[data['userid'] == i]
+        period = None
+        query = text("UPDATE public.user_statistics SET days_since_last_order = :period WHERE userid = :userid and strdate = :strdate;")
+        values = []
+        for _, j in persona.iterrows():
+            strdate = j['strdate']
+            values.append({'period' : period, 'userid' : int(i), 'strdate' : strdate})
+            if j['hasOrdered'] == True:
+                period = 0
+                period += 1
+        self.engine.execute(query, values)
+
+
     def days_since_last_order(self):
         engine = self.engine
         data = engine.execute('''
@@ -84,15 +96,7 @@ class UserStatisticsRepository:
         ''').fetchall()
         data = pd.DataFrame(data = data, columns=['userid', 'strdate', 'hasOrdered'])
         data['strdate'] = pd.to_datetime(data['strdate'], infer_datetime_format=True, format = "%Y-%m-%d", errors='coerce')
-        for i in data['userid'].unique():
-            persona = data[data['userid'] == i]
-            period = None
-            query = text("UPDATE public.user_statistics SET days_since_last_order = :period WHERE userid = :userid and strdate = :strdate;")
-            values = []
-            for _, j in persona.iterrows():
-                strdate = j['strdate']
-                values.append({'period' : period, 'userid' : int(i), 'strdate' : strdate})
-                if j['hasOrdered'] == True:
-                    period = 0
-                    period += 1
-            engine.execute(query, values)
+        
+        with ThreadPoolExecutor(max_workers=ThreadPoolConfig.MAX_WORKERS) as executor:
+            for i in data['userid'].unique():
+                future = executor.submit(self.calculate_days_sinse_last_order_for, i, data)

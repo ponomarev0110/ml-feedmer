@@ -1,11 +1,13 @@
 from functools import lru_cache
 import logging
 import datetime as dt
+from concurrent.futures import ThreadPoolExecutor
 
 import urllib
 import requests
 from config.constants import Constants
 
+from config.executor import ThreadPoolConfig
 from repository.internal.weather import WeatherRepository
 from service.user import UserService
 from utils.background import background
@@ -66,10 +68,13 @@ class WeatherService:
         data = self.weatherRepository.get_new_addresses()
         logging.info(f'Inserting {len(data)} objects')
         i = 0
-        for formaladdr, strdate, latitude, longitude in data:
-            self.get_weather(formaladdr, strdate, latitude, longitude)
-            if limit is not None:
-                if i > limit:
-                    break
-                else:
-                    i += 1
+        
+        with ThreadPoolExecutor(max_workers=ThreadPoolConfig.MAX_WORKERS) as executor:
+            for formaladdr, strdate, latitude, longitude in data:
+                if limit is not None:
+                    if i > limit:
+                        break
+                    else:
+                        i += 1  
+                future = executor.submit(self.get_weather, formaladdr, strdate, latitude, longitude)
+        logging.debug("Finished building user history")

@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS public.user_statistics
 
 CREATE TABLE IF NOT EXISTS public.weather
 (
-    formaladdr text NOT NULL,
+    formaladdr text,
     strdate TIMESTAMP NOT NULL,
     latitude numeric,
     longitude numeric,

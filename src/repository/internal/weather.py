@@ -96,6 +96,6 @@ class WeatherRepository:
             FROM weather
             WHERE weather.formaladdr IS NOT NULL  AND weather.latitude IS NOT NULL and weather.longitude IS NOT NULL
         ) coords ON users.formaladdr = coords.formaladdr
-        WHERE weather.formaladdr IS NULL
+        WHERE weather.formaladdr IS NULL AND users.formaladdr IS NOT NULL
         ''').fetchall()
         return data

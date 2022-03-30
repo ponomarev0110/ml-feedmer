@@ -2,11 +2,13 @@ import datetime as dt
 import logging
 import traceback
 import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
 import pandas as pd
 import numpy as np
 
 import osmnx as ox
+from config.executor import ThreadPoolConfig
 
 from repository.internal.user import UserRepository as ExternalUserRepository
 from repository.external.user import UserRepository as InternalUserRepository
@@ -27,34 +29,37 @@ class UserService:
         self.userStatisticsRepository = userStatisticsRepository
         self.userHistoryRepository = userHistoryRepository
 
-    def insert_user_orders(self, userid, startdate, enddate, orders_true): 
-        date_s = startdate
-        values = []
-        while date_s <= enddate:  
-            hasOrdered = not orders_true.loc[(orders_true['userid'] == userid) & (orders_true['strdate'] == date_s)].empty
-            price = None
-            messages = None
-            if hasOrdered:
-                price = orders_true.loc[(orders_true['userid'] == userid) & (orders_true['strdate'] == date_s), ['price']]
-                price = price.values[0][0]
-                messages = orders_true.loc[(orders_true['userid'] == userid) & (orders_true['strdate'] == date_s), ['messages']]
-                messages = int(messages.values[0][0])
-            values.append({'userid' : userid, 'strdate' : date_s, 'hasOrdered': hasOrdered, 'price' : price, 'messages' : messages})
-            date_s += dt.timedelta(days=1)
-        self.userHistoryRepository.save_data(values)
+    def insert_user_orders(self, userid, startdate, enddate, orders_true):
+        try:
+            date_s = startdate
+            values = []
+            while date_s <= enddate:  
+                hasOrdered = not orders_true.loc[(orders_true['userid'] == userid) & (orders_true['strdate'] == date_s)].empty
+                price = None
+                messages = None
+                if hasOrdered:
+                    price = orders_true.loc[(orders_true['userid'] == userid) & (orders_true['strdate'] == date_s), ['price']]
+                    price = price.values[0][0]
+                    messages = orders_true.loc[(orders_true['userid'] == userid) & (orders_true['strdate'] == date_s), ['messages']]
+                    messages = int(messages.values[0][0])
+                values.append({'userid' : userid, 'strdate' : date_s, 'hasOrdered': hasOrdered, 'price' : price, 'messages' : messages})
+                date_s += dt.timedelta(days=1)
+            self.userHistoryRepository.save_data(values)
+        except Exception as exc:
+            logging.warning(f'Failed building history for {userid}: {exc}')
+            logging.debug(traceback.format_exc())
+        else:
+            logging.debug(f'Finished building history for id:{userid}')
 
     def buildUserHistory(self):
         orders = self.externalUserRepository.getOrderData()
         orders['strdate'] = pd.to_datetime(orders['strdate'], infer_datetime_format=True, format = "%d.%m.%Y", errors='coerce')
         orders_dates = orders.groupby("userid")
         orders_dates = orders_dates.strdate.agg(startdate = np.min, enddate = np.max)
-        for userid, row in orders_dates.iterrows():
-            try:
-                logging.debug(f'Building history for id:{userid}')
-                self.insert_user_orders(userid, row['startdate'], max(row['enddate'], dt.datetime.now()), orders)
-            except Exception as exc:
-                logging.warning(f'Failed building history for {userid}: {exc}')
-                logging.debug(traceback.format_exc())
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            for userid, row in orders_dates.iterrows():
+                future = executor.submit(self.insert_user_orders, userid, row['startdate'], max(row['enddate'], dt.datetime.now()), orders)
+        logging.debug("Finished building user history")
         
 
     def updateUsers(self):
