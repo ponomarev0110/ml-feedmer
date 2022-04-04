@@ -1,5 +1,6 @@
 import traceback
 import pandas as pd
+from pandas.api.types import is_numeric_dtype
 import numpy as np
 
 from catboost import Pool, CatBoostClassifier, cv 
@@ -18,6 +19,7 @@ from datetime import datetime as dt
 import random 
 import gc
 import logging
+
 
 from repository.internal.data import ModelDataRepository
 from service.model.imodel import IModelService
@@ -76,7 +78,9 @@ class CatboostModelService(IModelService):
         logging.debug(orders['dayofweek'])
         orders = orders.dropna()
         logging.debug(orders.dtypes)
-        orders = orders[orders['dayofweek'] < 5]
+        if is_numeric_dtype(orders['dayofweek']):
+            orders = orders[orders['dayofweek'] < 5]
+        
 
         orders = orders.reset_index(drop=True)
 
@@ -217,6 +221,7 @@ class CatboostModelService(IModelService):
     def predict_date(self, date):
             data = self.dataRepository.getDataForUsersFor(date)
             orders = self.prepareData(data)
+            logging.debug(orders)
             result = []
             for id in orders['userid'].unique():        
                 try:

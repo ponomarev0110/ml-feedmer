@@ -51,14 +51,14 @@ class UserService:
         else:
             logging.debug(f'Finished building history for id:{userid}')
 
-    def buildUserHistory(self):
+    def buildUserHistory(self, date = dt.datetime.now()):
         orders = self.externalUserRepository.getOrderData()
         orders['strdate'] = pd.to_datetime(orders['strdate'], infer_datetime_format=True, format = "%d.%m.%Y", errors='coerce')
         orders_dates = orders.groupby("userid")
         orders_dates = orders_dates.strdate.agg(startdate = np.min, enddate = np.max)
         with ThreadPoolExecutor(max_workers=10) as executor:
             for userid, row in orders_dates.iterrows():
-                future = executor.submit(self.insert_user_orders, userid, row['startdate'], max(row['enddate'], dt.datetime.now()), orders)
+                future = executor.submit(self.insert_user_orders, userid, row['startdate'], max(row['enddate'], date), orders)
         logging.debug("Finished building user history")
         
 

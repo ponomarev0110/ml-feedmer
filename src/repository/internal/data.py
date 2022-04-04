@@ -389,7 +389,7 @@ class ModelDataRepository:
         ON building_types.formaladdr = users.formaladdr
         LEFT JOIN public.user_statistics 
         ON user_history.userid = user_statistics.userid AND user_history.strdate = user_statistics.strdate
-        WHERE user_history.strdate = :date
+        WHERE date_trunc('day', user_history.strdate) = date_trunc('day', :date)
         ORDER BY (user_history.userid, user_history.strdate);
         '''),
         date = date
